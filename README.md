@@ -15,7 +15,7 @@
     + memory.md：内存笔记
 
 ## 目录（笔记标题）
-+ [C/C++程序内存结构](#./1_memory/memory.md)
++ [C/C++程序内存结构](/1_memory/memory.md)
 + 浅谈构造、析构以及 new/delete
 + C++2.0新特性：右值引用、移动语义和完美转发
 + STL容器详解
