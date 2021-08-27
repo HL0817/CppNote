@@ -12,16 +12,17 @@
     + images：内存笔记所用到图片
         + [...]：图片若干
     + src：内存笔记中涉及的源代码
-    + memory.md：内存笔记
+    + [memory.md]：内存笔记
 
 ## 目录（笔记标题）
 + [C/C++程序内存结构](/1_memory/memory.md)
-+ 浅谈构造、析构以及 new/delete
-+ C++2.0新特性：右值引用、移动语义和完美转发
-+ STL容器详解
-+ 智能指针浅析
-+ C++11新特性——lambda
-+ std::thread -- std::mutex
++ [浅谈构造、析构以及 new/delete](/2_construction_and_destruction/construction_and_destruction.md)
++ [C/C++泛型编程：模板](/3_template/template.md)
++ [STL容器详解](/4_containers/containers.md)
++ [C++2.0新特性：右值引用、移动语义和完美转发](5_rvalue_and_move/rvalue_and_move.md)
++ [智能指针浅析](/6_smart_pointer/smart_pointer.md)
++ [C++11新特性——lambda](/7_lambda/lambda.md)
++ [std::thread -- std::mutex]()
 
 ## 关于更新
 不定期更新，大体结构如目录所示。
