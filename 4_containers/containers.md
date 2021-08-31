@@ -986,8 +986,8 @@ map/multimap 以红黑树为底层容器，兼具红黑树的优点和缺点。
 ### 基本结构
 ![hashtable_structure](./images/hashtable_structure.jpg)
 + 维护了一个叫做“buckets vector”的容器，存放hash值计算后对应元素的链表；
-+ 存放计算方式：根据 `hash % buckets.size()` ，讲元素放入这个余数对应的 buckets 索引得到的链表中；
-+ 当元素个数大于 `buckets.size()` 后，进行“rehashing”操作，讲元素重放；
++ 存放计算方式：根据 `hash % buckets.size()` ，将元素放入这个余数对应的 buckets 索引得到的链表中；
++ 当元素个数大于 `buckets.size()` 后，进行“rehashing”操作，将元素重放；
 + `hashtable` 存取元素不是很快吗，底层是链表怎么保证性能？——在存储元素的时候计算的hash值相同（hash碰撞）的概率较小，元素被存储在了不同的链表中，每个链表足够小，搜索速度仍然很快，接近常数时间；
 + “rehashing”之后的大小是多少，有什么依据？——buckets的大小一直是hash这种方法的不确定因素，因为这是一个经验值，G2.9的内部有这样一个定义：
 ```c++
