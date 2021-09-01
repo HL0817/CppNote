@@ -22,7 +22,7 @@
 + [C++2.0新特性：右值引用、移动语义和完美转发](5_rvalue_and_move/rvalue_and_move.md)
 + [智能指针浅析](/6_smart_pointer/smart_pointer.md)
 + [C++11新特性——lambda](/7_lambda/lambda.md)
-+ [std::thread -- std::mutex]()
++ [C++多线程编程](/8_thread/thread.md)
 
 ## 关于更新
 不定期更新，大体结构如目录所示。
