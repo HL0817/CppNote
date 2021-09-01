@@ -3,16 +3,6 @@
 *简单介绍几种智能指针*
 
 ## 目录
-+  智能指针
-    + auto_ptr
-    + unique_ptr
-    + shared_ptr
-    + weak_ptr
-+  智能指针与多线程
-
-**智能指针浅析**
-
-## 目录
 + [智能指针](#智能指针)
     + [auto_ptr](#auto_ptr)
     + [unique_ptr](#unique_ptr)

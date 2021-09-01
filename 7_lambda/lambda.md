@@ -11,7 +11,6 @@
     + std::function简介
     + 使用说明
 
-**lambda and std::function**
 
 ## 目录
 + [lambda](#lambda)
