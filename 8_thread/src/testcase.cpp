@@ -12,35 +12,50 @@ namespace test_thread {
 
     void hello()  
     {
-        std::cout << "Hello Concurrent World\n";
+        std::cout << "Hello current World\n";
         if (main_thread_id == std::this_thread::get_id())
             std::cout << "This is the main thread.\n";
         else
             std::cout << "This is not the main thread.\n";
+        std::cout << "current thread id = " << std::this_thread::get_id() << std::endl;
     }
 
     void pause_thread(int n) {
         std::this_thread::sleep_for(std::chrono::seconds(n));
         std::cout << "pause of " << n << " seconds ended\n";
     }
+
     void test_thread()
     {
         main_thread_id = std::this_thread::get_id();
         std::thread t(hello);
-        std::cout << "hardware_concurrency = " << t.hardware_concurrency() << std::endl;//可以并发执行多少个(不准确)
-        std::cout << "native_handle = " << t.native_handle() << std::endl;//可以并发执行多少个(不准确)
+        // 主线程等待上面线程执行完成
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::cout << "hardware_concurrency = " << t.hardware_concurrency() << std::endl; //可以并发执行多少个(不准确)
+        std::cout << "native_handle = " << t.native_handle() << std::endl; //可以并发执行多少个(不准确)
         t.join();
-        std::thread a(hello);
-        a.detach();
-        std::thread threads[5];                         // 默认构造线程
-
-        std::cout << "Spawning 5 threads...\n";
-        for (int i = 0; i < 5; ++i)
-            threads[i] = std::thread(pause_thread, i + 1);   // move-assign threads
-        std::cout << "Done spawning threads. Now waiting for them to join:\n";
-        for (auto &thread : threads)
-            thread.join();
-        std::cout << "All threads joined!\n";
+        
+        {
+            std::cout << "start t1 thread\n";
+            std::thread t1(pause_thread, 5);
+            std::cout << "start t2 thread\n";
+            std::thread t2(pause_thread, 1);
+            t1.join();
+            t2.join();
+            std::cout << "end this scope\n";
+        }
+        std::cout << "end thread t1,t2\n";
+        {
+            std::cout << "start t3 thread\n";
+            std::thread t3(pause_thread, 3);
+            std::cout << "start t4 thread\n";
+            std::thread t4(pause_thread, 1);
+            // t3.detach();
+            t4.detach();
+        }
+        std::cout << "end thread t3,t4\n";
+        // 主线程等待上面线程执行完成
+        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
@@ -100,7 +115,7 @@ namespace test_jthread {
     // void test_jthread()
     // {
     //     std::jthread jt{ [](std::stop_token st) {
-    //         while(!st.requested_stop()) {
+    //         while(!st.stop_requested()) {
     //             std::cout << "doing work\n";
     //             sleep(1);
     //         }
@@ -266,7 +281,7 @@ namespace test_mutex {
     } // namespace test_unique_lock
     
     /**********shared_mutex为c++17新特性 需要编译器支持17才能运行**********/
-    /**********shared_lock为c++17新特性 需要编译器支持17才能运行**********/
+    /**********shared_lock为c++14新特性 需要编译器支持14才能运行**********/
     namespace tesst_shared_lock {
         /*
         class ThreadSafeCounter {
@@ -528,7 +543,7 @@ namespace test_semaphone {
 }
 
 int main() {
-    // test_condition_variable::test_notify_all::test_notify_all();
-    static auto phase = "... done\n" "Cleaning up...\n";
-    std::cout <<  phase;
+    test_condition_variable::test_notify_one::test_notify_one();
+    // static auto phase = "... done\n" "Cleaning up...\n";
+    // std::cout <<  phase;
 }
