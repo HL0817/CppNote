@@ -672,7 +672,85 @@ Notifying true change...
 这个函数跟`cv.notify_one()`的功能基本一致，唯一的区别就是通知所有等待中的线程。
 
 ### 信号量
-C++20的标准才加入信号量，之前都是我们自己实现信号量类，自定义PV操作来做线程同步。新加入的信号量比较简单，直接看一下例子吧
+之前都是我们自己实现信号量类，自定义PV操作来做线程同步。现在C++20的标准才加入标准信号量，新加入的信号量比较简单，直接看一下例子吧。
+```c++
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <semaphore>
+using namespace std::literals; 
+
+// global binary semaphore instances
+// object counts are set to zero
+// objects are in non-signaled state
+std::binary_semaphore
+    smphSignalMainToThread(0),
+    smphSignalThreadToMain(0);
+
+void ThreadProc()
+{
+    // wait for a signal from the main proc
+    // by attempting to decrement the semaphore
+    smphSignalMainToThread.acquire();
+
+    // this call blocks until the semaphore's count
+    // is increased from the main proc
+
+    std::cout << "[thread] Got the signal\n"; // response message
+
+    // wait for 3 seconds to imitate some work
+    // being done by the thread
+    using namespace std::literals;
+    std::this_thread::sleep_for(3s);
+
+    std::cout << "[thread] Send the signal\n"; // message
+
+    // signal the main proc back
+    smphSignalThreadToMain.release();
+}
+
+int main()
+{
+    // create some worker thread
+    std::thread thrWorker(ThreadProc);
+
+    std::cout << "[main] Send the signal\n"; // message
+
+    // signal the worker thread to start working
+    // by increasing the semaphore's count
+    smphSignalMainToThread.release();
+
+    // wait until the worker thread is done doing the work
+    // by attempting to decrement the semaphore's count
+    smphSignalThreadToMain.acquire();
+
+    std::cout << "[main] Got the signal\n"; // response message
+    thrWorker.join();
+    return 0;
+}
+```
+结果如下：
+```
+[main] Send the signal
+[thread] Got the signal
+[thread] Send the signal
+[main] Got the signal
+```
+用流程图分析一下结果：
+![信号量例子流程图](./images/信号量例子流程图.jpg)
+
+`std::binary_semaphore`
++ 二元信号量类型，是`std::count_semaphore`的特化版本，二元信号量对象一般只有一个线程进行请求操作（P操作），阻塞等待另一个线程进行通信操作（V操作）。
+
+`std::counnt_semaphore`
++ 多元信号量，允许多个线程执行请求操作（P操作），只要计数不为0就可以进行资源访问；如果计数为0则等待其他线程进行通信操作（V操作）。
+二元信号量类似于互斥量，多元信号量类似于共享互斥量。
+
+`acquire()`
++ P操作，尝试执行计数减1：如果成功就返回让线程执行后续逻辑；如果失败则阻塞，直到其他线程执行V操作（计数加1），重新执行P操作。
+
+`release()`
++ V操作，执行计数加1，并且通知其他阻塞线程进行P操作。
 
 ### 线程屏障
 #### std::latch
