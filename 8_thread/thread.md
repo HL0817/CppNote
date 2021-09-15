@@ -747,11 +747,74 @@ int main()
 二元信号量类似于互斥量，多元信号量类似于共享互斥量。
 
 `acquire()`
-+ P操作，尝试执行计数减1：如果成功就返回让线程执行后续逻辑；如果失败则阻塞，直到其他线程执行V操作（计数加1），重新执行P操作。
++ P操作，尝试执行计数减1(计数大于1时可减)：如果成功就返回让线程执行后续逻辑；如果失败则阻塞，直到其他线程执行V操作（计数加1），重新执行P操作。
 
 `release()`
 + V操作，执行计数加1，并且通知其他阻塞线程进行P操作。
 
 ### 线程屏障
+`std::latch`和`std::barrier`是C++20新增的线程同步机制。他们按照计数的方式去进行线程，多个线程拥有同一个线程屏障，可以在各自线程中较少计数或等待计数减少到0等操作，从而达到同步的目的。
 #### std::latch
+单次的计数器，计数减到0后不能重新设置计数。
+示例如下：
+```c++
+#include <functional>
+#include <iostream>
+#include <latch>
+#include <string>
+#include <thread>
+ 
+int main() {
+  struct job {
+    const std::string name;
+    std::string product{"not worked"};
+    std::thread action{};
+  } jobs[] = {{"annika"}, {"buru"}, {"chuck"}};
+ 
+  std::latch work_done{std::size(jobs)};
+  std::latch start_clean_up{1};
+ 
+  auto work = [&](job& my_job) {
+    my_job.product = my_job.name + " worked";
+    work_done.count_down();
+    start_clean_up.wait();
+    my_job.product = my_job.name + " cleaned";
+  };
+ 
+  std::cout << "Work starting... ";
+  for (auto& job : jobs) {
+    job.action = std::thread{work, std::ref(job)};
+  }
+  work_done.wait();
+  std::cout << "done:\n";
+  for (auto const& job : jobs) {
+    std::cout << "  " << job.product << '\n';
+  }
+ 
+  std::cout << "Workers cleaning up... ";
+  start_clean_up.count_down();
+  for (auto& job : jobs) {
+    job.action.join();
+  }
+  std::cout << "done:\n";
+  for (auto const& job : jobs) {
+    std::cout << "  " << job.product << '\n';
+  }
+}
+```
+结果如下：
+```
+Work starting... done:
+  annika worked
+  buru worked
+  chuck worked
+Workers cleaning up... done:
+  annika cleaned
+  buru cleaned
+  chuck cleaned
+```
+还是让我们用流程图来理解上述多线程同步过程：
+![latch例子流程图](./images/latch例子流程图.jpg)
+
 #### std::barrier
+可重用计数器，计数减到0后可以重新设置计数。
