@@ -816,5 +816,87 @@ Workers cleaning up... done:
 还是让我们用流程图来理解上述多线程同步过程：
 ![latch例子流程图](./images/latch例子流程图.jpg)
 
+`std::latch`:
++ 以正整数为参数构造出一个递减计数器，多用于线程同步。
+
+`latch.wait()`:
++ 等到`std::latch`对象的计数减到0，否则就阻塞等待。
+
+`latch.count_down(n)`:
++ 把`std::latch`对象的计数减n，默认减1，如果减少后的值为负数，会造成异常或者错误。
+
+`latch.arrive_and_wait(n)`:
++ 先把`std::latch`对象的计数减n（默认减1）然后在执行`wait()`操作，如果减少后的值为负数，会造成异常或者错误。
+
 #### std::barrier
 可重用计数器，计数减到0后可以重新设置计数。
+```c++
+#include <barrier>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <vector>
+ 
+int main() {
+  const auto workers = { "anil", "busara", "carl" };
+ 
+  auto on_completion = []() noexcept { 
+    // locking not needed here
+    static auto phase = "... done\n" "Cleaning up...\n";
+    std::cout << phase;
+    phase = "... done\n";
+  };
+  std::barrier sync_point(std::ssize(workers), on_completion);
+ 
+  auto work = [&](std::string name) {
+    std::string product = "  " + name + " worked\n";
+    std::cout << product;  // ok, op<< call is atomic
+    sync_point.arrive_and_wait();
+ 
+    product = "  " + name + " cleaned\n";
+    std::cout << product;
+    sync_point.arrive_and_wait();
+  };
+ 
+  std::cout << "Starting...\n";
+  std::vector<std::thread> threads;
+  for (auto const& worker : workers) {
+    threads.emplace_back(work, worker);
+  }
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+```
+结果如下：
+```
+Starting...
+  anil worked
+  carl worked
+  busara worked
+... done
+Cleaning up...
+  busara cleaned
+  carl cleaned
+  anil cleaned
+... done
+```
+还是让我们用流程图来理解上述多线程同步过程：
+![barrier例子流程图](./images/barrier例子流程图.jpg)
+
+`std::barrier`:
++ 以正整数和可调用对象为参数构造出一个递减计数器，多用于线程同步，计数器减为0时，执行一次可调用对象并且重置计数器为构造时的原始值。
+比起`std::latch`来说，`std::barrier`多了计数器减至0调用预设的函数和重置计数器两个功能。
+
+`barrier.wait()`:
++ 等到`std::latch`对象的计数减到0，否则就阻塞等待。
+
+`barrier.arrive(n)`:
++ 把`std::latch`对象的计数减n，默认减1，如果减少后的值为负数，会造成异常或者错误。
+
+`barrier.arrive_and_wait(n)`:
++ 先把`std::latch`对象的计数减n（默认减1）然后在执行`wait()`操作，如果减少后的值为负数，会造成异常或者错误。
+
+`barrier.arrive_and_drop(n)`:
++ 先把`std::latch`对象的计数减n（默认减1），同时将计数器的原始值减n（默认减1）。
+这个方法可以让我们动态调节计数器重置之后的数值。
