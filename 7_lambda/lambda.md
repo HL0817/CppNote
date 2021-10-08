@@ -130,7 +130,7 @@ vi.erase(
 for (auto i : vi) {
     cout << i << ' '; // 5 28 590 245 24
 }
-/**********lambda**********/
+/**********functor**********/
 class LambdaFunctor {
 public:
     LambdaFunctor(int a, int b) : m_a(a), m_b(b) {}
