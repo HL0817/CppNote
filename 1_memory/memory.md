@@ -48,6 +48,7 @@
 ## 图解
 
 进程的虚拟地址空间如下：
+
 ![Memory Display](./images/memory.png)[图源自网络]
 
 ![MemoryMap Display](./images/memorymap.jpg)[图源自网络]

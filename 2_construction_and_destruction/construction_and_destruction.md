@@ -89,7 +89,9 @@ public:
 };
 ```
 下图为编译器的报错提示：
+
 ![空默认构造函数与只带默认参数的构造函数被缺省调用时](./images/error_with_default_construction.jpg)
+
 可见，省略调用参数的 **只带默认参数构造函数** 被当做了默认构造函数；使用传入参数的 **只带默认参数构造函数** 被识别成了非默认构造函数。
 *tips：声明构造函数时，显式的声明默认构造函数，不让只有默认参数的构造函数和空默认构造函数，是一种好的代码习惯。*
 
@@ -490,6 +492,7 @@ virtual_table vtable1 = *vtableAddr;
 baseClassVirtualDestructor = vtable1;
 ```
 打上断点，让我们dbug一下这段代码，执行到上述代码最后一行时，可以得到如下提示：
+
 ![runtime_tips_without_destructor](./images/virtual_table_runtime_tips_with_destructor.jpg)
 
 编译器就在虚函数表中找到了派生类的析构函数，并做了调用，成功的析构了派生类对象和父类对象。
@@ -518,7 +521,9 @@ void private_destructor_test()
 }
 ```
 看一下报错提示：
+
 ![private_destructor_error](./images/private_destructor_error_tips.jpg)
+
 可以看出，这个类型只能在堆上动态创建对象，手动管理内存，我们不能将它下放给编译器自动管理内存。
 *tips：这个类同时也有不能被继承的限制*
 
@@ -671,6 +676,7 @@ void__cdecl operator delete(void* p)_THROW0()
 
 #### array size in memory block
 下图展示建议的内存结构：
+
 ![array_memory_map](./images/array_new_memorymap.jpg)
 
 ### placement new
@@ -734,6 +740,7 @@ void placement_new_test()
 }
 ```
 结果抛出一个异常：
+
 ![delete palcement new](./images/delete_placement_new_error_tips.jpg)
 
 这里应当显式调用析构函数进行内存管理：

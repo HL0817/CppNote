@@ -154,7 +154,9 @@ int main(void)
 }
 ```
 我们把鼠标放到min函数上，可以看见：
+
 ![min函数自动生成对应类型](./images/min_template_func.jpg)
+
 它会为我们生成对应类型的函数。
 
 ## 成员模板
